@@ -1,40 +1,8 @@
-#function solve(input)
-#	#this code is fast for solving part one but I think it's neater to do both parts in a single function
-#        numdigits = x -> floor(log10(x)) + 1
-#        solution = 0
-#        ranges = split(input, ',')
-#        for r in ranges
-#
-#                begin_r, end_r = parse.(Int, split(r, '-'))
-#                if numdigits(begin_r) % 2 != 0
-#                        begin_r = 10^(numdigits(begin_r))
-#                end
-#                if numdigits(end_r) % 2 != 0
-#                        end_r = 10^(numdigits(end_r) - 1) - 1
-#                end
-#
-#                begin_r > end_r && continue
-#
-#                begin_half = begin_r ÷ 10^(numdigits(begin_r) / 2)
-#                end_half = end_r ÷ 10^(numdigits(end_r) / 2)
-#
-#                for h in begin_half:end_half
-#                        candidate = h * 10^numdigits(h) + h
-#                        candidate < begin_r && continue
-#                        candidate > end_r && break
-#                        solution += candidate
-#                end
-#        end
-#
-#        solution
-#end
-
 function solve(input)
         numdigits = x -> floor(log10(x)) + 1
         ranges = split(input, ',')
         part_one = Set{Int}()
         part_two = Set{Int}()
-        solution = 0
         for r in ranges
                 begin_r, end_r = parse.(Int, split(r, '-'))
                 min_length = numdigits(begin_r)
@@ -44,7 +12,13 @@ function solve(input)
                         max_reps = floor(Int, max_length / seg_len)
                         min_reps > max_reps && continue
                         for rep in min_reps:max_reps
-                                for segment::Int in 10^(seg_len-1):10^(seg_len)-1
+                                lower_seg = 1
+                                if seg_len * rep == min_length
+                                        lower_seg = begin_r ÷ 10^(min_length - seg_len)
+                                else
+                                        lower_seg = 10^(seg_len - 1)
+                                end
+                                for segment::Int in lower_seg:10^(seg_len)-1
                                         candidate = segment
                                         for n in 1:rep-1
                                                 candidate += segment * 10^(seg_len * n)
