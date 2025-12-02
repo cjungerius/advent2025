@@ -1,37 +1,39 @@
+#function solve(input)
+#	#this code is fast for solving part one but I think it's neater to do both parts in a single function
+#        numdigits = x -> floor(log10(x)) + 1
+#        solution = 0
+#        ranges = split(input, ',')
+#        for r in ranges
+#
+#                begin_r, end_r = parse.(Int, split(r, '-'))
+#                if numdigits(begin_r) % 2 != 0
+#                        begin_r = 10^(numdigits(begin_r))
+#                end
+#                if numdigits(end_r) % 2 != 0
+#                        end_r = 10^(numdigits(end_r) - 1) - 1
+#                end
+#
+#                begin_r > end_r && continue
+#
+#                begin_half = begin_r ÷ 10^(numdigits(begin_r) / 2)
+#                end_half = end_r ÷ 10^(numdigits(end_r) / 2)
+#
+#                for h in begin_half:end_half
+#                        candidate = h * 10^numdigits(h) + h
+#                        candidate < begin_r && continue
+#                        candidate > end_r && break
+#                        solution += candidate
+#                end
+#        end
+#
+#        solution
+#end
+
 function solve(input)
         numdigits = x -> floor(log10(x)) + 1
-        solution = 0
         ranges = split(input, ',')
-        for r in ranges
-
-                begin_r, end_r = parse.(Int, split(r, '-'))
-                if numdigits(begin_r) % 2 != 0
-                        begin_r = 10^(numdigits(begin_r))
-                end
-                if numdigits(end_r) % 2 != 0
-                        end_r = 10^(numdigits(end_r) - 1) - 1
-                end
-
-                begin_r > end_r && continue
-
-                begin_half = begin_r ÷ 10^(numdigits(begin_r) / 2)
-                end_half = end_r ÷ 10^(numdigits(end_r) / 2)
-
-                for h in begin_half:end_half
-                        candidate = h * 10^numdigits(h) + h
-                        candidate < begin_r && continue
-                        candidate > end_r && break
-                        solution += candidate
-                end
-        end
-
-        solution
-end
-
-function solve2(input)
-        numdigits = x -> floor(log10(x)) + 1
-        ranges = split(input, ',')
-        invalid = Set{Int}()
+        part_one = Set{Int}()
+        part_two = Set{Int}()
         solution = 0
         for r in ranges
                 begin_r, end_r = parse.(Int, split(r, '-'))
@@ -49,16 +51,17 @@ function solve2(input)
                                         end
                                         candidate < begin_r && continue
                                         candidate > end_r && break
-                                        push!(invalid, candidate)
+                                        rep == 2 && push!(part_one, candidate)
+                                        push!(part_two, candidate)
                                 end
                         end
                 end
         end
-        sum(invalid)
+        (sum(part_one), sum(part_two))
 end
 
 input = readline("input/02_input.txt")
 
-solution = [solve(input), solve2(input)]
+solution = solve(input)
 println("part 1 solution: ", solution[1])
 println("part 2 solution: ", solution[2])
