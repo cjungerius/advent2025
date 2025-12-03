@@ -11,16 +11,16 @@ end
 function solve2(banks)
         total = 0
         for b in banks
-                switched_on = [1:length(b)...]
-                while length(switched_on) > 12
-                        for (i, v) in enumerate(switched_on)
-                                if i == length(switched_on) || b[switched_on[i+1]] > b[v]
-                                        popat!(switched_on, i)
-                                        break
-                                end
+                switched_on = [b[1]]
+                removals = length(b) - 12
+                for val in b[2:end]
+                        while removals > 0 && !isempty(switched_on) && val > switched_on[end]
+                                pop!(switched_on)
+                                removals -= 1
                         end
+                        push!(switched_on, val)
                 end
-                total += parse(Int, b[switched_on])
+                total += parse(Int, *(switched_on[1:12]...))
         end
         total
 end
