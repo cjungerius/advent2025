@@ -31,16 +31,8 @@ function solve(input)
 
         part_one = 0
         for ingredient in ingredients
-                for r in fresh_ranges_merged
-                        if ingredient < r[1]
-                                break
-                        elseif ingredient > r[2]
-                                continue
-                        else
-                                part_one += 1
-                                break
-                        end
-                end
+                i = searchsortedlast(fresh_ranges_merged, (ingredient, typemax(Int)), by=x -> x[1])
+                part_one += i > 0 && fresh_ranges_merged[i][1] ≤ ingredient ≤ fresh_ranges_merged[i][2]
         end
 
         part_two = sum([r[2] - r[1] + 1 for r in fresh_ranges_merged])
