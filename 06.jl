@@ -17,7 +17,6 @@ end
 function solve2(input)
         operations = split(input[end], " ", keepempty=false)
         lines = []
-        numdone = false
         cols = length(input[1])
         rows = length(input)
         nums = Int[]
