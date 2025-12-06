@@ -14,6 +14,35 @@ function solve(input)
         partone
 end
 
-input = readdlm("input/06_input.txt")
+function solve2(input)
+        operations = split(input[end], " ", keepempty=false)
+        lines = []
+        i = length(operations)
+        numdone = false
+        cols = length(input[1])
+        rows = length(input)
+        nums = Int[]
+        op_index = 1
+        op = operations[op_index] == "+" ? (+) : (*)
+        parttwo = 0
+        for i in 1:cols
+                thiscol = strip(*([input[j][i] for j in 1:rows-1]...))
+                if isempty(thiscol)
+                        parttwo += op(nums...)
+                        empty!(nums)
+                        op_index += 1
+                        op = operations[op_index] == "+" ? (+) : (*)
+                else
+                        push!(nums, parse(Int, thiscol))
+                end
+        end
+        parttwo += op(nums...)
 
-solve(input)
+        parttwo
+end
+
+fname = "input/06_input.txt"
+input1 = readdlm(fname)
+solve(input1)
+input2 = readlines(fname)
+solve2(input2)
