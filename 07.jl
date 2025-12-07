@@ -1,24 +1,20 @@
 function solve(input)
-        beampos = Dict{Int,Int}()
-        beampos_buff = Dict{Int,Int}()
+        beampos = zeros(Int, length(input[1]))
         splits = 0
 
         beampos[findfirst('S', input[1])] = 1
         for line in input[2:end]
-                for (b, v) in beampos
-                        if line[b] == '.'
-                                beampos_buff[b] = get(beampos_buff, b, 0) + v
-                        elseif line[b] == '^'
-                                beampos_buff[b-1] = get(beampos_buff, b - 1, 0) + v
-                                beampos_buff[b+1] = get(beampos_buff, b + 1, 0) + v
+                for (b, v) in enumerate(beampos)
+                        if line[b] == '^' && v != 0
+                                beampos[b-1] += v
+                                beampos[b+1] += v
+                                beampos[b] = 0
                                 splits += 1
                         end
                 end
-                beampos, beampos_buff = beampos_buff, beampos
-                empty!(beampos_buff)
         end
 
-        timelines = sum(values(beampos))
+        timelines = sum(beampos)
         (splits, timelines)
 end
 
