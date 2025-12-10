@@ -2,6 +2,22 @@ using DataStructures
 using JuMP
 using HiGHS
 
+function bv_to_uint(bv::BitVector)
+        x = 0
+        for (i, bit) in pairs(bv)
+                x |= bit << (i - 1)
+        end
+        return x
+end
+
+function list_to_mask(idxs)
+        x = 0
+        for i in idxs
+                x |= 1 << i
+        end
+        return x
+end
+
 function solve(input)
         presses = 0
         pattern = r"\[(.+)\] (.+)\ \{(.+)\}"
@@ -9,30 +25,28 @@ function solve(input)
         pattern_matches = match.(pattern, input)
         for i in eachindex(pattern_matches)
                 target = BitVector(split(pattern_matches[i].captures[1], "") .== "#")
+                target_num = bv_to_uint(target)
                 buttons = pattern_matches[i].captures[2]
                 buttons = [m.captures[1] for m in eachmatch(button_pattern, buttons)]
                 buttons = split.(buttons, ",")
                 buttons = [parse.(Int, b) for b in buttons]
-                buttons = [BitVector([a in b for a in 0:length(target)-1]) for b in buttons]
+                buttons = [list_to_mask(b) for b in buttons]
 
-                lights = falses(length(target))
-                q = Queue{Tuple}()
+                lights::Int = 0
+                q = Queue{Tuple{UInt,Int}}()
                 steps = 0
 
-                seen = Set([lights])
-
-                for b in buttons
-                        enqueue!(q, (lights, b, steps))
-                end
+                seen = Set{UInt}([lights])
+                enqueue!(q, (lights, steps))
 
                 while !isempty(q)
-                        lights, b, steps = dequeue!(q)
-                        lights == target && break
+                        lights, steps = dequeue!(q)
+                        lights == target_num && break
                         for b in buttons
-                                next_lights = lights .⊻ b
+                                next_lights = lights ⊻ b
                                 if !(next_lights in seen)
                                         push!(seen, next_lights)
-                                        enqueue!(q, (next_lights, b, steps + 1))
+                                        enqueue!(q, (next_lights, steps + 1))
                                 end
                         end
                 end
