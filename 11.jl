@@ -11,25 +11,19 @@ function solve(input)
         end
 
         path_counter = 0
-        path_2_counter = 0
-        q = Queue{Vector{String}}()
-        push!(q, ["svr"])
+        q = Queue{String}()
+        push!(q, "you")
 
         while !isempty(q)
-                path = dequeue!(q)
-                if path[end] == "out"
+                node = dequeue!(q)
+                if node == "out"
                         path_counter += 1
-                        if "dac" in path && "fft" in path
-                                path_2_counter += 1
-                        end
                         continue
                 end
 
-                steps = graph[path[end]]
+                steps = graph[node]
                 for s in steps
-                        if !(s in path)
-                                push!(q, [path..., s])
-                        end
+                        push!(q, s)
                 end
         end
 
@@ -46,25 +40,22 @@ function solve2(input)
 
         end
 
-        memo = Dict{Tuple{String,Set{String}},Int}()
 
-        function path_count(node, visited)
-                val = get!(memo, (node, visited)) do
-                        if node == "out"
-                                return ("dac" in visited) && ("fft" in visited) ? 1 : 0
-                        else
-                                x = 0
-                                for s in graph[node]
-                                        if !(s in visited)
-                                                new_visited = push!(copy(visited), s)
-                                                x += path_count(s, new_visited)
-                                        end
-                                end
-                        end
-                        return x
+        @memoize function path_count(node, dac, fft)
+                if node == "out"
+                        return dac && fft ? 1 : 0
+                elseif node == "dac"
+                        dac = true
+                elseif node == "fft"
+                        fft = true
                 end
-                return val
+
+                x = 0
+                for s in graph[node]
+                        x += path_count(s, dac, fft)
+                end
+                return x
         end
 
-        path_count("svr", Set{String}([]))
+        path_count("svr", false, false)
 end
